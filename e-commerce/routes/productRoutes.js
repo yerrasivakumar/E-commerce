@@ -6,21 +6,21 @@ import {
  updateProduct,
  deleteProduct
 } from "../controllers/productController.js";
-
+import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // Route to create a new product
-router.post('/add', createProduct);
+router.post('/add',protect, createProduct);
 
 // Route to get all products
-router.get('/allproducts', getProducts);
+router.get('/allproducts', protect,getProducts);
 // Route to get single product
-router.get('/singleProduct/:id', getOneProduct);
+router.get('/singleProduct/:id',protect, getOneProduct);
 
 // Route to update a product by ID
-router.put('/update/:id', updateProduct);
+router.put('/update/:id',protect, updateProduct);
 
 // Route to delete a product by ID
-router.delete('/delete/:id', deleteProduct);
+router.delete('/delete/:id',protect, deleteProduct);
 
 export default router;
