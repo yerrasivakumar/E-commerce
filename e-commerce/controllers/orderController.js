@@ -47,7 +47,7 @@ export const placeOrder = async (req, res) => {
 
 export const getorderHistory = async (req, res) => {
   try {
-    const { userId } = req.user._id;
+    const { userId } = req.params;
 
     // 1️⃣ Check user exists
     const user = await User.findById(userId);
