@@ -35,10 +35,11 @@ const orderSchema = new mongoose.Schema(
       default: "COD",
     },
 
-    status: {
-      type: String,
-      default: "Pending",
-    },
+   status: {
+  type: String,
+  enum: ["Pending", "Received", "Cancel"],
+  default: "Pending",
+},
   },
   { timestamps: true }
 );

@@ -72,3 +72,64 @@ export const getorderHistory = async (req, res) => {
     });
   }
 };
+
+//admin get orders
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("userId", "name email mobileNumber")
+      .populate("items.productId", "name price");
+
+    res.status(200).json({
+      message: "All orders fetched",
+      data: orders,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+//admin status update
+export const getOrdersByStatus = async (req, res) => {
+  try {
+    const { status } = req.params; // Pending / Completed / Rejected
+
+    const orders = await Order.find({ status })
+      .populate("userId", "name email")
+      .populate("items.productId", "name price");
+
+    res.status(200).json({
+      message: `${status} orders fetched`,
+      data: orders,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+//admin status updated
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body; // Completed or Rejected
+
+    if (!["Received", "Cancel"].includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status update",
+      });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({
+      message: `Order ${status} successfully`,
+      data: order,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
