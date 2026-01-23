@@ -84,11 +84,11 @@ export const updateQuantity = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
 
-    if (quantity <= 0) {
-      return res.status(400).json({
-        message: "Quantity must be at least 1",
-      });
-    }
+    if (quantity === 0) {
+  cart.items = cart.items.filter(
+    (i) => i.productId.toString() !== productId
+  );
+}
 
     const product = await Product.findById(productId);
     if (!product) {

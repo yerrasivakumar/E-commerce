@@ -11,6 +11,16 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+     netQuantity: {
+    type: Number, // 250, 500, 1, 3
+    required: true
+  },
+
+  unit: {
+    type: String, // g, kg, ml, l, pcs
+    enum: ["g", "kg", "ml", "l", "pcs"],
+    required: true
+  },
     category: String,
     image: String,
     stock: {

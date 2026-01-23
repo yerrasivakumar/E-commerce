@@ -3,15 +3,47 @@ import Product from "../models/Product.js";
 // Create product
 export const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const {
+      title,
+      price,
+      netQuantity,
+      unit,
+      category,
+      image,
+      stock,
+      description
+    } = req.body;
+
+    // Basic validation
+    if (!title || !price || !netQuantity || !unit ||!category ||!image ||!stock |!description) {
+      return res.status(400).json({
+        message: "all are required"
+      });
+    }
+
+    const product = await Product.create({
+      title,
+      description,
+      price,
+      netQuantity,
+      unit,
+      category,
+      image,
+      stock
+    });
+
     res.status(201).json({
       message: "Product created successfully",
       product
     });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({
+      message: "Server Error",
+      error: error.message
+    });
   }
 };
+
 
 // Get all products
 export const getProducts = async (req, res) => {
@@ -36,12 +68,13 @@ export const getProducts = async (req, res) => {
 // get catergory list
 export const getcategorylist = async (req, res) => {
   try {
-   
-
-    const products = await Product.find(category);
-    res.status(200).json(products);
+    const categories = await Product.distinct("category");
+    res.status(200).json(categories);
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({
+      message: "Server Error",
+      error: error.message
+    });
   }
 };
 
