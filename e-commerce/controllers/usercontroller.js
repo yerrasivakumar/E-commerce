@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import {sendMail} from '../utils/nodemailer.js'
 
 export const signup = async (req, res) => {
   try {
@@ -42,11 +42,16 @@ export const signup = async (req, res) => {
       password: hashPassword,
       profileImage: req.file.path // store image path
     });
-
+  
     res.status(201).json({
       message: "User registered successfully",
       user
     });
+
+await sendMail({
+  to: user.email,
+  name: user.name,
+});
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -70,6 +75,7 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
+         
         //Genrate JWT Token
 const token = jwt.sign( {id: user._id}, process.env.JWT_SECRET,{ expiresIn:"7d" });
         res.json({

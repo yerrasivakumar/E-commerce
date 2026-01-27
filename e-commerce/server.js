@@ -7,7 +7,8 @@ import Product from './routes/productRoutes.js'
 import AddCart from './routes/cartRoutes.js'
 import Orders from './routes/orderRoutes.js'
 import Address from './routes/address.js'
-
+import {sendMail} from './utils/nodemailer.js'
+import { sendOrderPlacedMail } from "./utils/nodemailer.js";
 dotenv.config()
 const  app = express()
 
@@ -33,6 +34,30 @@ app.use('/api/address', Address);
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
+
+// app.post("/send-mail", async (req, res) => {
+//   try {
+//     const { to,name} = req.body;
+
+//     if (!to) {
+//       return res.status(400).json({ message: "Mail is required" });
+//     }
+
+//     await sendMail({ to ,name});
+
+//     res.status(200).json({ message: "Mail sent successfully" ,name});
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Failed to send mail",
+//       error: error.message,
+//     });
+//   }
+// });
+
+
+
+
+
 
 
 app.listen(5000, () => {

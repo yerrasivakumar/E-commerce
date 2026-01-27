@@ -2,48 +2,89 @@ import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js'
+import {sendOrderPlacedMail} from '../utils/nodemailer.js'
 export const placeOrder = async (req, res) => {
-    try {
-        const { userId, address,paymentMethod } = req.body;
+  try {
+    const { userId, address, paymentMethod } = req.body;
 
-        //Get Cart
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
-        if (!cart || cart.items.length === 0) {
-            return res.status(400).json({ message: "Cart is empty" });
-        }
-
-        //Prepare Order Items
-        const orderItems = cart.items.map(item => ({
-            productId: item.productId._id,
-            quantity: item.quantity,
-            price: item.productId.price,
-        }));
-
-        //Calculate Total Amount
-        const totalAmount = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-
-        //Deduct stock from Products
-        for (let item of cart.items){
-            await Product.findByIdAndUpdate(item.productId._id, { $inc: { stock: -item.quantity } });
-        }
-
-        //Create Order
-        const order = await Order.create({
-            userId,
-            items: orderItems,
-            address,
-            totalAmount,
-            paymentMethod
-        });
-
-        //Clear Cart
-        await Cart.findOneAndUpdate({ userId }, { items: [] });
-
-        res.status(201).json({ message: "Order placed successfully", ordeId: order._id });
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+    // 🔹 Get User
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-}
+
+    // 🔹 Get Cart
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+console.log("CART ITEMS 👉", cart.items);
+    // 🔹 Prepare Order Items
+    const orderItems = cart.items.map(item => ({
+      productId: item.productId._id,
+      quantity: item.quantity,
+      price: item.productId.price,
+    }));
+
+    // 🔹 Calculate Total
+    const totalAmount = orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    // 🔹 Deduct Stock
+    for (let item of cart.items) {
+      await Product.findByIdAndUpdate(item.productId._id, {
+        $inc: { stock: -item.quantity },
+      });
+    }
+
+    // 🔹 Create Order
+    const order = await Order.create({
+      userId,
+      items: orderItems,
+      address,
+      totalAmount,
+      paymentMethod,
+     
+    });
+
+  
+
+    // 🔹 Clear Cart
+    await Cart.findOneAndUpdate({ userId }, { items: [] });
+
+    res.status(201).json({
+      message: "Order placed successfully",
+      orderId: order._id,
+    });
+  // 🔹 Prepare Email Items (THIS WAS MISSING)
+const emailItems = cart.items.map(item => ({
+  name: item.productId.title,   // ✅ FIXED
+  quantity: item.quantity,
+  price: item.productId.price,
+  total: item.productId.price * item.quantity,
+}));
+
+const formattedAddress = `
+${address.phone}<br/>
+${address.city}, ${address.state} - ${address.pincode}
+${address.adressLine}<br/>
+`;
+    // 🔹 SEND EMAIL (CORRECT)
+    await sendOrderPlacedMail(user.email, {
+      name: user.name,
+      orderId: order._id,
+      items: emailItems,
+      totalAmount,
+      address :formattedAddress,
+    });
+  } catch (error) {
+    console.error("ORDER ERROR 👉", error); // 🔥 IMPORTANT
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const getorderHistory = async (req, res) => {
   try {

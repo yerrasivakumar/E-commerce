@@ -10,32 +10,52 @@ export const createProduct = async (req, res) => {
       unit,
       category,
       image,
+      description,
       stock,
-      description
+      // optional fields
+      shelfLife,
+      dietaryPreference,
+      brandName,
+      manufacturer,
+      imported,
+      countryOfOrigin,
+      seller,
+      customerCare
     } = req.body;
 
-    // Basic validation
-    if (!title || !price || !netQuantity || !unit ||!category ||!image ||!stock |!description) {
+    // ✅ Only REQUIRED fields validation
+    if (!title || !price || !netQuantity || !unit || !category || !image) {
       return res.status(400).json({
-        message: "all are required"
+        message: "Required fields missing"
       });
     }
 
     const product = await Product.create({
       title,
-      description,
       price,
       netQuantity,
       unit,
       category,
       image,
-      stock
+
+      // optional (only added if sent)
+      description,
+      stock,
+      shelfLife,
+      dietaryPreference,
+      brandName,
+      manufacturer,
+      imported,
+      countryOfOrigin,
+      seller,
+      customerCare
     });
 
     res.status(201).json({
       message: "Product created successfully",
       product
     });
+
   } catch (error) {
     res.status(500).json({
       message: "Server Error",
@@ -43,6 +63,7 @@ export const createProduct = async (req, res) => {
     });
   }
 };
+
 
 
 // Get all products
