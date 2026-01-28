@@ -7,8 +7,7 @@ import Product from './routes/productRoutes.js'
 import AddCart from './routes/cartRoutes.js'
 import Orders from './routes/orderRoutes.js'
 import Address from './routes/address.js'
-import {sendMail} from './utils/nodemailer.js'
-import { sendOrderPlacedMail } from "./utils/nodemailer.js";
+import wishlistRoutes from './routes/wishlistRoutes.js'
 dotenv.config()
 const  app = express()
 
@@ -29,7 +28,7 @@ app.use('/api/product', Product);
 app.use('/api/cart', AddCart);
 app.use('/api/order', Orders);
 app.use('/api/address', Address);
-
+app.use("/api/wishlist", wishlistRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');
