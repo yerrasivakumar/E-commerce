@@ -5,15 +5,9 @@ import {sendMail} from '../utils/nodemailer.js'
 
 export const signup = async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      mobileNumber,
-      password,
-    } = req.body;
+    const { name, email, mobileNumber, password } = req.body;
 
-    // Validation
-    if (!name || !email || !mobileNumber || !password ) {
+    if (!name || !email || !mobileNumber || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -21,12 +15,8 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Profile image is required" });
     }
 
-    // if (password !== confirmPassword) {
-    //   return res.status(400).json({ message: "Passwords do not match" });
-    // }
-
     const userExists = await User.findOne({
-      $or: [{ email }, { mobileNumber }]
+      $or: [{ email }, { mobileNumber }],
     });
 
     if (userExists) {
@@ -35,28 +25,30 @@ export const signup = async (req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 10);
 
+    const profileImage = `/uploads/profile/${req.file.filename}`;
+
     const user = await User.create({
       name,
       email,
       mobileNumber,
       password: hashPassword,
-      profileImage: req.file.path // store image path
+      profileImage,
     });
-  
+
+    await sendMail({
+      to: user.email,
+      name: user.name,
+    });
+
     res.status(201).json({
       message: "User registered successfully",
-      user
+      user,
     });
-
-await sendMail({
-  to: user.email,
-  name: user.name,
-});
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 //Login User
 export const loginUser = async (req, res) => {

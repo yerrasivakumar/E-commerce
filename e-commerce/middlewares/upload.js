@@ -2,7 +2,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 
-const uploadPath = "uploads/profile";
+const uploadPath = path.join(process.cwd(), "uploads/profile");
 
 // Create folder if not exists
 if (!fs.existsSync(uploadPath)) {
@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
-  }
+  },
 });
 
 const fileFilter = (req, file, cb) => {

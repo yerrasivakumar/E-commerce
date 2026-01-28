@@ -8,6 +8,7 @@ import AddCart from './routes/cartRoutes.js'
 import Orders from './routes/orderRoutes.js'
 import Address from './routes/address.js'
 import wishlistRoutes from './routes/wishlistRoutes.js'
+import path from "path";
 dotenv.config()
 const  app = express()
 
@@ -21,6 +22,7 @@ app.use(cors({
 // Body Parser (Built-in)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 connectdb();
 app.use("/uploads", express.static("uploads"));
 app.use('/api/auth', Routes);
