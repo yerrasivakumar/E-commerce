@@ -35,14 +35,16 @@ export const signup = async (req, res) => {
       profileImage,
     });
 
-    await sendMail({
-      to: user.email,
-      name: user.name,
-    });
+    
 
     res.status(201).json({
       message: "User registered successfully",
       user,
+    });
+
+    await sendMail({
+      to: user.email,
+      name: user.name,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
