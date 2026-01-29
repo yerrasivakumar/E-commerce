@@ -4,53 +4,24 @@ import jwt from "jsonwebtoken";
 import {sendMail} from '../utils/nodemailer.js'
 
 export const signup = async (req, res) => {
-  try {
-    const { name, email, mobileNumber, password } = req.body;
-
-    if (!name || !email || !mobileNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
+   try { const { name, email, mobileNumber, password, } = req.body;
+    // Validation 
+    if (!name || !email || !mobileNumber || !password ) 
+      { return res.status(400).json({ message: "All fields are required" }); } 
     if (!req.file) {
-      return res.status(400).json({ message: "Profile image is required" });
-    }
-
-    const userExists = await User.findOne({
-      $or: [{ email }, { mobileNumber }],
-    });
-
-    if (userExists) {
+       return res.status(400).json({ message: "Profile image is required" }); }
+    // 
+    const userExists = await User.findOne({ $or: [{ email }, { mobileNumber }] });
+     if (userExists) { 
       return res.status(400).json({ message: "User already exists" });
-    }
-
-    const hashPassword = await bcrypt.hash(password, 10);
-
-    const profileImage = `/uploads/profile/${req.file.filename}`;
-
-    const user = await User.create({
-      name,
-      email,
-      mobileNumber,
-      password: hashPassword,
-      profileImage,
-    });
-
-    
-
-    res.status(201).json({
-      message: "User registered successfully",
-      user,
-    });
-
-    await sendMail({
-      to: user.email,
-      name: user.name,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
+     }
+      const hashPassword = await bcrypt.hash(password, 10); 
+      const user = await User.create({
+         name, email, mobileNumber, password: hashPassword, profileImage: req.file.path})
+        res.status(201).json({ message: "User registered successfully", user });
+       await sendMail({ to: user.email, name: user.name, }); 
+      } catch (error) { res.status(500).json({ message: error.message }); }}
+  
 
 //Login User
 export const loginUser = async (req, res) => {
